@@ -77,6 +77,12 @@ When completed, a text file with the translation vectors is saved to `<Image Seq
 
 ## Sample
 
+In order to run a sample set use the CamParams.txt file as is. All the project folders need to be in the same directory for a succesful run.
+Type the following command on the command-line:
+```
+$ python MAIN.py visual_odometry/CameraParams.txt
+```
+
 The images and poses in the KITTI_sample folder belong to the [KITTI Vision Benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) dataset.
 
 Authors: Andreas Geiger and Philip Lenz and Raquel Urtasun
