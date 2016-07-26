@@ -75,7 +75,6 @@ def run():
     # Gives each image an id number based position in images list
     img_id = 0
 
-    images = images[:40]
     # Initial call to print 0% progress bar
     TT.printProgress(img_id, len(images)-1, prefix='Progress:', suffix='Complete', barLength=50)
 
