@@ -57,14 +57,14 @@ whitespace due to the fact that the program is line-based when reading the file
 *******************************************************************************
 
 
-\KITTI_sample\images
+KITTI_sample\images
 PNG
 True
 7.188560000000e+02 0.000000000000e+00 6.071928000000e+02 0.000000000000e+00 0.000000000000e+0 7.188560000000e+02 1.852157000000e+02 0.000000000000e+00 0.000000000000e+00 0.000000000000e+00 1.000000000000e+00 0.000000000000e+00
 None
 SIFT
 GPS_T
-..\KITTI_dataset\data_odometry_poses\dataset\poses\00.txt
+KITTI_sample\poses.txt
 WINDOW_YES
 
 
