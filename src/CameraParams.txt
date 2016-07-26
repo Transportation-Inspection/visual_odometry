@@ -1,0 +1,71 @@
+******************************************************************************
+Format of the text file for py-MVO's input parameters:
+
+-------------------------------------------------------------------------------
+
+<Image Sequence's Directory>
+<Images' File Format (e.g. PNG, JPG)>
+<Boolean: Type True if Projection Matrix is used else type None>
+<Projection Matrix: is a 3x4 matrix; input as 1-D array, if CameraIntrinsicMat is used: type None>
+<CameraIntrinsicMatrix: is a 3x3 matrix; input as 1-D array, if ProjectionMat true: type None>
+<Feature Detector: SIFT, FAST, SURF, SHI-TOMASI>
+<GPS Flag: List of flags available are below, if no GPS: type None>
+<Ground Truth Poses: a text file with the transformation matrices as 1-D arrays(KITTI dataset format>
+<Window Display Flag: List of flags available are below>
+
+-------------------------------------------------------------------------------
+
+GPS Flags:
+
+If the images have GPS data in the EXIF file, then some flags can be input
+in order to produce specific trajectories for comparison or merging. The trajectories
+are plotted in the same graph as the Visual Odometry(VO) trajectory.
+
+- GPS_NO: No GPS is provided.
+
+- GPS_T: Plots the trajectory of the GPS coordinates.
+
+- GPS_T_M: Plots the trajectory of the GPS coordinates and formulates a trajectory which merges
+           the GPS and VO.
+
+Ground Truth Text File:
+
+- Is a text file which contains the transformation matrices of the image sequence. The matrices
+  are written as 1-D array and take one line. Use the format given by the KITTI dataset in their
+  odometry ground truth poses folder.
+  *You may download such folder at http://www.cvlibs.net/datasets/kitti/eval_odometry.php
+- Type: None, if no ground truth is going to be provided.
+- If indeed ground truth is provided it will be used for scaling, instead of the relative scale.
+
+Windowed Displays Flags:
+
+Flags which determine if the windowed displays are going to be displayed.
+
+- WINDOW_NO: Does not display any window.
+
+- WINDOW_T: Displays only the trajectories.
+
+- WINDOW_YES: Displays all windows.
+
+SUBSTITUTE THE LINES BELOW, WITH THE ACTUAL INFORMATION YOU ARE GOING TO USE
+FOR THE VISUAL ODOMETRY RUN.
+
+*Erase the included angle brackets.
+**Don't erase any of the information between the asterisks neither eliminate
+whitespace due to the fact that the program is line-based when reading the file
+
+*******************************************************************************
+
+
+KITTI_sample\images
+PNG
+True
+7.188560000000e+02 0.000000000000e+00 6.071928000000e+02 0.000000000000e+00 0.000000000000e+0 7.188560000000e+02 1.852157000000e+02 0.000000000000e+00 0.000000000000e+00 0.000000000000e+00 1.000000000000e+00 0.000000000000e+00
+None
+SIFT
+GPS_NO
+KITTI_sample\poses.txt
+WINDOW_YES
+
+
+
