@@ -75,6 +75,14 @@ When completed, a text file with the translation vectors is saved to `<Image Seq
 
 *This project has been tested with a dataset of 4,540 images. 
 
+## Sample
+
+The images in the KITTI_sample folder belong to the [KITTI Vision Benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) dataset.
+
+Authors: Andreas Geiger and Philip Lenz and Raquel Urtasun
+
+  
+
 ## Calibration and Images
 
 The camera of the dataset needs to be calibrated, the projection matrix or camera instrics matrix must be known. For the best performance of the py-MVO project the images should be undistorted. Undistortion is produced mostly by the lenses in the camera. OpenCV provides more information [here](https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_calib3d/py_calibration/py_calibration.html#calibration). 
