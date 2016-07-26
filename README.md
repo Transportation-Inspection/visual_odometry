@@ -54,7 +54,7 @@ Entire filepath:
 ```
 $ python MAIN.py ../CameraParams.txt
 ```
-The program uses the text file to obtain all the input parameters, the [CameraParams]() text file in the repository provides the correct format and should be used as the template, just replace the sample information at the bottom of the file with your information. The image dataset used should be sequential, meaning that the movement between images needs to be progressive; e.g. images taken from a moving vehicle of the road ahead.
+The program uses the text file to obtain all the input parameters, the [CameraParams](https://github.com/Transportation-Inspection/visual_odometry/blob/master/CameraParams.txt) text file in the repository provides the correct format and should be used as the template, just replace the sample information at the bottom of the file with your information. The image dataset used should be sequential, meaning that the movement between images needs to be progressive; e.g. images taken from a moving vehicle of the road ahead.
 
 Input parameters for the CameraParams Text File:
 ```
@@ -68,7 +68,7 @@ Input parameters for the CameraParams Text File:
 <Ground Truth Poses: a text file with the transformation matrices as 1-D arrays(KITTI dataset format>
 <Window Display Flag: List of flags available in the CameraParams.txt>
 ```
-*All the information about the parameters is in the [CameraParams.txt]()
+*All the information about the parameters is in the [CameraParams.txt](https://github.com/Transportation-Inspection/visual_odometry/blob/master/CameraParams.txt)
 
 After the text file is set properly run the `python command` mentioned before, the program might take a while depending on the size of the dataset.
 When completed, a text file with the translation vectors is saved to `<Image Sequence's Directory>` and a plot of the Visual Odometry's trajectory is presented(depending on the `<Window Display Flag>`).  
