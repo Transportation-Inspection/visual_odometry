@@ -9,7 +9,7 @@ https://github.com/pranjals16/cs676/tree/master/project/project_group6_cs676/cod
 
 """
 
-from Common_Modules import *
+from src.Common_Modules import *
 
 EPSILON = 0.0001
 

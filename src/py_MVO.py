@@ -25,8 +25,8 @@ https://github.com/uoip/monoVO-python
 
 """
 
-from Common_Modules import *
 import Triangulation
+from Common_Modules import *
 
 # GLOBAL VARIABLES
 STAGE_FIRST_FRAME = 0  # The three STAGE variables

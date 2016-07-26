@@ -26,18 +26,31 @@ https://github.com/uoip/monoVO-python
 
 """
 
-from Common_Modules import *
-import GPS_VO
-import Trajectory_Tools as TT
-from py_MVO import VisualOdometry
+import argparse
+from os import path
+from time import sleep
+
 import CameraParams_Parser as Cam_Parser
+import GPS_VO
 import Ground_Truth as GT
+import Trajectory_Tools as TT
+from Common_Modules import *
+from py_MVO import VisualOdometry
 
 
-if __name__ == '__main__':
+def run():
 
-    # Create Camera Parameters object
-    CP = Cam_Parser.CameraParams('test_CamParams.txt')
+    print '-- Press ESC key to end program\n'
+    #Parse the Command Line/Terminal
+    cmd_parser = argparse.ArgumentParser()
+    cmd_parser.add_argument('txt_file', help= 'Text file that contains all the input parameters. Verify the CameraParams file.')
+    args = cmd_parser.parse_args()
+    try:
+        # Create Camera Parameters object
+        CP = Cam_Parser.CameraParams(args.txt_file)
+    except:
+        print "Error: txt_file argument not .txt file or is in the wrong format."
+        return
     # Returns the images' directory, images' format, and GPS_FLAG
     folder, img_format, GPS_flag  = CP.folder, CP.format, CP.GPS_FLAG
     images = TT.images_from_Folder(folder, img_format)  # List of all the images' filepaths
@@ -49,23 +62,29 @@ if __name__ == '__main__':
         if gps_dict and utm_dict:
             gps_switch = True  # Verify if GPS info was retrieved
         else:
-            print 'Warning: No GPS data was recovered from the images EXIF file'
+            print "Warning: No GPS data recovered from the images' EXIF file"
 
-    # Returns the camera intrinsic matrix, feature detector, and ground truth poses (if provided)
-    K, f_detector, GT_poses = CP.CamIntrinMat, CP.featureDetector, CP.groundTruth
+    # Returns the camera intrinsic matrix, feature detector, ground truth (if provided), and windowed displays flag
+    K, f_detector, GT_poses, window_flag = CP.CamIntrinMat, CP.featureDetector, CP.groundTruth, CP.windowDisplay
     # Initializing the Visual Odometry object
     vo = VisualOdometry(K, f_detector, GT_poses)
-
     # Square for the real-time trajectory window
     traj = np.zeros((600, 600, 3), dtype=np.uint8)
 
-    # --------------------------------------------------------------------------------
+    # ------------------ Image Sequence Iteration and Processing ---------------------
     # Gives each image an id number based position in images list
     img_id = 0
 
-    for i, img in enumerate(images[:20]):  # Iterating through all images
+    images = images[:40]
+    # Initial call to print 0% progress bar
+    TT.printProgress(img_id, len(images)-1, prefix='Progress:', suffix='Complete', barLength=50)
 
-        print i, img
+    for i, img in enumerate(images):  # Iterating through all images
+
+        k = cv2.waitKey(20) & 0xFF
+        if k == 27:  # Wait for ESC key to exit
+            cv2.destroyAllWindows()
+            return
 
         imgKLT = cv2.imread(img)  # Read the image for real-time trajectory
         img = cv2.imread(img, 0)  # Read the image for Visual Odometry
@@ -74,40 +93,61 @@ if __name__ == '__main__':
             # Retrieve image distance in order to scale translation vectors
             prev_GPS = gps_dict.values()[img_id - 1]
             cur_GPS = gps_dict.values()[img_id]
-            print GPS_VO.getGPS_distance(prev_GPS, cur_GPS)
+            distance = GPS_VO.getGPS_distance(prev_GPS, cur_GPS)  # Returns the distance between current and last GPS
 
         vo.update(img, img_id)  # Updating the vectors in VisualOdometry class
 
         cur_t = vo.cur_t  # Retrieve the translation vectors
 
-        if img_id > 1:  # Set the points for the real-time trajectory window
-            x, y, z = cur_t[0], cur_t[1], cur_t[2]
-            TT.drawFeatureMatches(imgKLT, vo.px_ref, vo.px_cur, vo.new_roi)  # Draw the features that were matched
-        else:
-            x, y, z = 0., 0., 0.
+        # ------- Windowed Displays ---------
+        if window_flag == 'WINDOW_YES':
+            if img_id > 0:  # Set the points for the real-time trajectory window
+                x, y, z = cur_t[0], cur_t[1], cur_t[2]
+                TT.drawFeatureMatches(imgKLT, vo.px_ref, vo.px_cur, vo.new_roi)  # Draw the features that were matched
+            else:
+                x, y, z = 0., 0., 0.
 
-        traj = TT.RT_trajectory_window(traj, x, y, z, img_id)  # Draw the trajectory window
-
+            traj = TT.RT_trajectory_window(traj, x, y, z, img_id)  # Draw the trajectory window
+        # -------------------------------------
+        sleep(0.1) # Sleep for progress bar update
         img_id += 1  # Increasing the image id
+        TT.printProgress(i, len(images)-1, prefix='Progress:', suffix='Complete', barLength=50)  # update progress bar
+
     # --------------------------------------------------------------------------------
 
-    # Retrieving the translation vectors from the
-    # translation vector list which is an attribute of the VO class
-    T_v = [(t[0][0], t[2][0]) for t in vo.T_vectors]
+    # Write poses to text file in the images sequences directory
+    poses_MVO = open(path.normpath(folder+'/py-MVO_Poses.txt'), 'w')
+    for t_v in vo.T_vectors:
+        poses_MVO.write(' '.join([str(t[0]) for t in t_v]) + '\n')
+    poses_MVO.close()  # Close the Poses text file
 
-    if GT_poses:  # Ground Truth Data is used in case GPS and GT are available
-        # Ground Truth poses in list
-        GT_poses = GT.ground_truth(GT_poses)
-        # Plot VO and ground truth trajectories
-        TT.VO_GT_plot(T_v, GT_poses)
+    # -------- Plotting Trajectories ----------
+    if window_flag == 'WINDOW_YES' or window_flag == 'WINDOW_T':
+        # Retrieving the translation vectors from the
+        # translation vector list which is an attribute of the VO class
+        T_v = [(t[0][0], t[2][0]) for t in vo.T_vectors]
 
-    elif gps_switch:  # Plotting the VO and GPS trajectories
-        if GPS_flag == 'GPS_T':
-            TT.GPS_VO_plot(T_v, utm_dict)
-        elif GPS_flag == 'GPS_T_M':
-            # Do merged trajectory
-            Merged = 'Not Yet'
-    else:
-        TT.VO_plot(T_v)
+        if GT_poses:  # Ground Truth Data is used in case GPS and GT are available
+            # Ground Truth poses in list
+            GT_poses = GT.ground_truth(GT_poses)
+            # Plot VO and ground truth trajectories
+            TT.VO_GT_plot(T_v, GT_poses)
 
+        elif gps_switch:  # Plotting the VO and GPS trajectories
+            if GPS_flag == 'GPS_T':
+                TT.GPS_VO_plot(T_v, utm_dict)
+            elif GPS_flag == 'GPS_T_M':
+                # Do merged trajectory
+                Merged = 'Not Yet'
+        else:
+            TT.VO_plot(T_v)
+    # -------------------------------------------
+
+    return
+
+#################################################################################
+
+if __name__ == '__main__':
+
+    run()
 

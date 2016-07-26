@@ -49,7 +49,7 @@ class CameraParams:
         # Read the Camera Params file
         with open(txt_file) as f:
             self.txt = f.readlines()
-        idx = 46  # The index where the attributes begin
+        idx = 59  # The index where the attributes begin
         self.folder = self.txt[idx].strip()
         self.format = self.txt[idx+1].strip()
         self.isProjMat = self.txt[idx+2].strip()
@@ -84,6 +84,7 @@ class CameraParams:
         # If groundTruth is not provided, it is assigned as False
         if self.groundTruth == '' or self.groundTruth == 'None':
             self.groundTruth = False
+        self.windowDisplay = self.txt[idx+8].strip()
 
 
 
