@@ -28,7 +28,7 @@ import math
 import sys
 from os import path
 
-from src.Common_Modules import *
+from Common_Modules import *
 
 
 def images_from_Folder(folder, format):
