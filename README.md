@@ -77,7 +77,7 @@ When completed, a text file with the translation vectors is saved to `<Image Seq
 
 ## Sample
 
-The images in the KITTI_sample folder belong to the [KITTI Vision Benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) dataset.
+The images and poses in the KITTI_sample folder belong to the [KITTI Vision Benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) dataset.
 
 Authors: Andreas Geiger and Philip Lenz and Raquel Urtasun
 
