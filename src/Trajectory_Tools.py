@@ -118,8 +118,8 @@ def rotateFunct(pts_l, angle, degrees=False):
 def VO_plot(T_v):
     """ Plot the VO trajectory"""
     plt.figure(1)
-    plt.plot(*zip(*T_v), marker='o', color='b')
-
+    pyMVO = plt.plot(*zip(*T_v), marker='o', color='b')
+    plt.legend(handles=[pyMVO])
     # Set plot parameters and show it
     plt.axis('equal')
     plt.grid()
@@ -130,9 +130,9 @@ def VO_plot(T_v):
 def VO_GT_plot(T_v, GT_l):
     """ Plot the VO and Ground Truth trajectories"""
     plt.figure(1)
-    plt.plot(*zip(*T_v), marker='o', color='b')
-    plt.plot(*zip(*GT_l), marker='o', color='g')
-
+    pyMVO, = plt.plot(*zip(*T_v), marker='o', color='b', label='py-MVO')
+    GT, = plt.plot(*zip(*GT_l), marker='o', color='g', label='Ground Truth')
+    plt.legend(handles=[pyMVO, GT])
     # Set plot parameters and show it
     plt.axis('equal')
     plt.grid()
@@ -198,9 +198,9 @@ def GPS_VO_plot(T_v, utm_dict):
 
     # Plotting the VO and GPS trajectories
     plt.figure(1)
-    plt.plot(*zip(*gps), color='red', marker='o')
-    plt.plot(*zip(*T_v), marker='o', color='b')
-
+    GPS = plt.plot(*zip(*gps), color='red', marker='o')
+    pyMVO = plt.plot(*zip(*T_v), marker='o', color='b')
+    plt.legend(handles=[pyMVO, GPS])
     # Set plot parameters and show it
     plt.axis('equal')
     plt.grid()
