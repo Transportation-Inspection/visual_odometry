@@ -116,8 +116,9 @@ def run():
 
     # Write poses to text file in the images sequences directory
     poses_MVO = open(path.normpath(folder+'/py-MVO_Poses.txt'), 'w')
-    for t_v in vo.T_vectors:
-        poses_MVO.write(' '.join([str(t[0]) for t in t_v]) + '\n')
+    for t_v, R_m in zip(vo.T_vectors, vo.R_matrices):
+        T = np.hstack((R_m,t_v)).flatten()
+        poses_MVO.write(' '.join([str(t) for t in T]) + '\n')
     poses_MVO.close()  # Close the Poses text file
 
     # -------- Plotting Trajectories ----------

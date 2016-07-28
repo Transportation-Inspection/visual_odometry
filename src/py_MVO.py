@@ -122,6 +122,7 @@ class VisualOdometry:
         self.distCoeff       Distortion Coefficients
         self.Scale           Scale, used to scale the translation and rotation matrix
         self.T_vectors       List which contains all the translation vectors
+        self.R_matrices      List which contains all the Rotation matrices
         self.new_cloud       3-D point cloud of current frame, i, and previous frame, i-1
         self.last_cloud      3-D point cloud of previous frame, i-1, and the one before that, i-2
         self.F_detectors     Dictionary of Feature Detectors available
@@ -145,6 +146,7 @@ class VisualOdometry:
         self.K = CameraIntrinMat
         self.Scale = 0
         self.T_vectors = []
+        self.R_matrices = []
         self.new_cloud = None
         self.last_cloud = None
         self.F_detectors = {'FAST': cv2.FastFeatureDetector_create(threshold=25, nonmaxSuppression=True),
@@ -240,6 +242,7 @@ class VisualOdometry:
 
         self.px_ref = self.detectNewFeatures(self.new_frame, self.px_ref)
         self.T_vectors.append(tuple([[0], [0], [0]]))
+        self.R_matrices.append(tuple(np.zeros((3, 3))))
         self.frame_stage = STAGE_SECOND_FRAME
 
     def processSecondFrame(self):
@@ -256,6 +259,7 @@ class VisualOdometry:
         # Estimate Rotation and translation vectors
         _, self.cur_R, self.cur_t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, self.K)
         self.T_vectors.append(tuple(self.cur_R.dot(self.cur_t)))
+        self.R_matrices.append(tuple(self.cur_R))
         # Triangulation, returns 3-D point cloud
         self.new_cloud = self.triangulation_3D(self.cur_R, self.cur_t)
         # The new frame becomes the previous frame
@@ -299,6 +303,7 @@ class VisualOdometry:
             self.cur_t = self.cur_t + self.Scale * self.cur_R.dot(t)  # Concatenate the translation vectors
             self.cur_R = R.dot(self.cur_R)  # Concatenate the rotation matrix
             self.T_vectors.append(tuple(self.cur_t))
+            self.R_matrices.append(tuple(self.cur_R))
 
         if self.px_ref.shape[0] < kMinNumFeature:                     # Verify if the amount of feature points
             self.px_cur = self.detectNewFeatures(cur_img, self.px_cur)  # is above the kMinNumFeature threshold
