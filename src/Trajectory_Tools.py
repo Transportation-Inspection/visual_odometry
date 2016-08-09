@@ -27,6 +27,8 @@ import glob
 import math
 import sys
 from os import path
+from itertools import *
+
 
 from Common_Modules import *
 
@@ -207,4 +209,104 @@ def GPS_VO_plot(T_v, utm_dict):
     plt.show()
 
     return
+
+def unique_everseen(iterable, key=None):
+    "List unique elements, preserving order. Remember all elements ever seen."
+    # unique_everseen('AAAABBBCCDAABBB') --> A B C D
+    # unique_everseen('ABBCcAD', str.lower) --> A B C D
+    seen = set()
+    seen_add = seen.add
+    if key is None:
+        for element in ifilterfalse(seen.__contains__, iterable):
+            seen_add(element)
+            yield element
+    else:
+        for element in iterable:
+            k = key(element)
+            if k not in seen:
+                seen_add(k)
+                yield element
+
+def GPS_VO_Merge_plot(T_v_dict, utm_dict):
+    """ Plot the VO and GPS trajectories.
+        The GPS trajectory is rotated and translated to the origin
+        in order to obtain a visual comparison between both trajectories."""
+    k = T_v_dict.keys() + utm_dict.keys()
+    k = [i for i in unique_everseen([i for i in k if k.count(i) > 1])]
+
+    T_v, gps_orig = [], []
+    for key in k:
+        T_v.append(T_v_dict[key])
+        gps_orig.append(utm_dict[key])
+
+    # Retrieving the GPS coordinates into a list
+    # Shifting the trajectory to the origin
+    utm_dx = gps_orig[0][0]
+    utm_dy = gps_orig[0][1]
+
+    gps = [(u[0] - utm_dx, u[1] - utm_dy) for u in gps_orig]
+
+    # Scale factor from GPS to VO
+    last_gps = gps[len(gps) - 1]
+    last_vo = T_v[len(T_v) - 1]
+
+    d_gps = math.sqrt((last_gps[0] ** 2) + (last_gps[1] ** 2))
+    d_VO = math.sqrt((last_vo[0] ** 2) + (last_vo[1] ** 2))
+
+    scale = d_gps / d_VO
+
+    # Apply scale factor to the translation vectors
+    T_v = [np.array(t) * scale for t in T_v]
+
+    for i, t in enumerate(T_v):
+        magn = 0
+        if i != 0:
+            magn = np.linalg.norm((t - T_v[i - 1]))
+
+        print i, t, math.sqrt((t[0] ** 2) + (t[1] ** 2)), magn
+
+    # Obtaining the angle between the first points of each list: VO list and GPS list
+    rotate_idx = min(len(T_v)-1, len(gps)-1)
+    VO_v = np.array(T_v[rotate_idx])
+    GPS_v = np.array(gps[rotate_idx])
+
+    # Distance between points.
+    d1 = math.sqrt((VO_v[0] - GPS_v[0]) ** 2 + (VO_v[1] - GPS_v[1]) ** 2)
+    # Obtain the angle assuming the two points are vectors
+    angle = math.acos((VO_v.dot(GPS_v)) / (np.linalg.norm(VO_v) * np.linalg.norm(GPS_v)))
+    # Rotates the GPS point only for verification
+    VO_v = rotateFunct([VO_v], angle)
+
+    # Distance between points after rotation.
+    d2 = math.sqrt((VO_v[0][0] - GPS_v[0]) ** 2 + (VO_v[0][1] - GPS_v[1]) ** 2)
+    # Verify if points are closer after rotation if not rotate the other way
+    if d2 < d1:
+        sign = -1
+    else:
+        sign = 1
+
+    # Rotating the GPS function so it aligns with the VO function
+    T_v = rotateFunct(T_v, sign * angle)
+
+    T_v = [np.array((t[0] + utm_dx, t[1] + utm_dy)) for t in T_v]
+
+    # Dictionary key: image path, value: vo utm coordinates
+    VO_dict = OrderedDict()
+    for key, value in zip(k, T_v):
+        VO_dict[key] = value
+
+    # --------------------------------------------------
+
+    # Plotting the VO and GPS trajectories
+    plt.figure(1)
+    GPS, = plt.plot(*zip(*gps_orig), color='red', marker='o', label='GPS')
+    pyMVO, = plt.plot(*zip(*T_v), marker='o', color='b', label='py-MVO')
+    plt.legend(handles=[pyMVO, GPS])
+    # Set plot parameters and show it
+    plt.axis('equal')
+    plt.grid()
+    plt.show()
+
+
+    return VO_dict
 
