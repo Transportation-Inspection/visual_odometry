@@ -330,9 +330,11 @@ class VisualOdometry:
             self.processFirstFrame()
 
         if self.skip_frame:  # If the current image is skipped the
-            return           # last frame is not updated.
+            return False          # last frame is not updated.
 
         # The new frame is converted to last frame
         self.last_id = frame_id
         self.last_frame = self.new_frame
         self.last_roi = self.new_roi
+
+        return True
