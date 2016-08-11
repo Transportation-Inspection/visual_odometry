@@ -28,7 +28,7 @@ from itertools import ifilterfalse
 
 from utm import from_latlon
 
-import Trajectory_Tools_1_ as TT
+import Trajectory_Tools as TT
 from Common_Modules import *
 
 def ground_truth(folder):
