@@ -23,7 +23,6 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 """
 
 import math
-from collections import OrderedDict
 from itertools import ifilterfalse
 
 from utm import from_latlon
