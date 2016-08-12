@@ -128,6 +128,9 @@ class VisualOdometry:
         self.F_detectors     Dictionary of Feature Detectors available
         self.detector        The chosen Feature Detector
         self.annotations     Translation vectors of the ground truth data, taken from a text file
+        self.OFF_prev        The previous corresponded feature points for Optical Flow Window
+        self.OFF_cur         The current corresponded feature points for Optical Flow Window
+
         """
 
         self.frame_stage = 0
@@ -156,6 +159,8 @@ class VisualOdometry:
 
         self.detector = self.F_detectors[f_detector]
         self.groundTruth = groundTruth
+        self.OFF_prev = None
+        self.OFF_cur = None
         if self.groundTruth:
             with open(groundTruth) as f:
                 self.groundTruth = f.readlines()
@@ -262,6 +267,8 @@ class VisualOdometry:
         self.R_matrices.append(tuple(self.cur_R))
         # Triangulation, returns 3-D point cloud
         self.new_cloud = self.triangulation_3D(self.cur_R, self.cur_t)
+        # For Optical Flow Field
+        self.OFF_prev, self.OFF_cur = self.px_ref, self.px_cur
         # The new frame becomes the previous frame
         self.frame_stage = STAGE_DEFAULT_FRAME
         self.px_ref = self.px_cur
@@ -308,6 +315,8 @@ class VisualOdometry:
         if self.px_ref.shape[0] < kMinNumFeature:                     # Verify if the amount of feature points
             self.px_cur = self.detectNewFeatures(cur_img, self.px_cur)  # is above the kMinNumFeature threshold
 
+        # For Optical Flow Field
+        self.OFF_prev, self.OFF_cur = self.px_ref, self.px_cur
         # The new frame becomes the previous frame
         self.px_ref = self.px_cur
         self.last_cloud = self.new_cloud

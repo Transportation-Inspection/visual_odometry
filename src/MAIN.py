@@ -122,7 +122,7 @@ def run():
             if window_flag == 'WINDOW_YES':
                 if img_id > 0:  # Set the points for the real-time trajectory window
                     x, y, z = cur_t[0], cur_t[1], cur_t[2]
-                    TT.drawFeatureMatches(imgKLT, vo.px_ref, vo.px_cur, vo.new_roi)  # Draw the features that were matched
+                    TT.drawOpticalFlowField(imgKLT, vo.OFF_prev, vo.OFF_cur)  # Draw the features that were matched
                 else:
                     x, y, z = 0., 0., 0.
 

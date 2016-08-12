@@ -78,7 +78,32 @@ def drawFeatureMatches(img, ref_pts, cur_pts, vo_roi):
         tup = (a, b)
         cv2.circle(img, tup, 5, color[i].tolist(), -1)
 
-    cv2.imshow('frame', img)
+    cv2.imshow('Feature Corresponding Matches', img)
+    cv2.waitKey(1)
+
+    return
+
+def drawOpticalFlowField(img, ref_pts, cur_pts):
+    """ Shows a window which shows the optical flow of detected features. """
+
+    # Draw the tracks
+    for i, (new, old) in enumerate(zip(cur_pts, ref_pts)):
+
+        a,b = new.ravel()
+        c,d = old.ravel()
+        v1 = tuple((new - old)*2.5 + old)
+        d_v = [new-old][0]*0.75
+        arrow_color = (28,24,178)
+        arrow_t1 = rotateFunct([d_v], 0.5)
+        arrow_t2 = rotateFunct([d_v], -0.5)
+        tip1 = tuple(np.float32(np.array([c, d]) + arrow_t1)[0])
+        tip2 = tuple(np.float32(np.array([c, d]) + arrow_t2)[0])
+        cv2.line(img, v1,(c,d), (0,255,0), 2)
+        cv2.line(img, (c,d), tip1, arrow_color, 2)
+        cv2.line(img, (c,d), tip2, arrow_color, 2)
+        cv2.circle(img, v1,1,(0,255,0),-1)
+
+    cv2.imshow('Optical Flow Field', img)
     cv2.waitKey(1)
 
     return
@@ -93,7 +118,7 @@ def RT_trajectory_window(window, x, y, z, img_id):
     cv2.rectangle(window, (10, 20), (600, 60), (0, 0, 0), -1)
     text = "Coordinates: x=%2fm y=%2fm z=%2fm" % (x, y, z)
     cv2.putText(window, text, (20, 40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
-    cv2.imshow('Trajectory', window)
+    cv2.imshow('Real-Time Trajectory', window)
 
     return window
 
