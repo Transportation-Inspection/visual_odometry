@@ -4,7 +4,10 @@ The project implements Mononocular Visual Odometry utilizing [OpenCV 3.1.0-dev](
 with the [opencv_contrib](https://github.com/opencv/opencv_contrib) modules.
 
 ![opticalfield](media/opticalfield.png)
-Optical Flow Field represented by arrows 
+**Optical Flow Field represented by arrows**
+
+![Trajectory](media/py-MVO_Comparison.png)
+**Comparison of py-MVO and a GPS sensor**
 
 ## Project
 
