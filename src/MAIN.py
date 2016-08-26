@@ -97,13 +97,17 @@ def run():
 
     for i, img_path in enumerate(images):  # Iterating through all images
 
-        k = cv2.waitKey(20) & 0xFF
+        k = cv2.waitKey(10) & 0xFF
         if k == 27:  # Wait for ESC key to exit
             cv2.destroyAllWindows()
             return
 
         imgKLT = cv2.imread(img_path)  # Read the image for real-time trajectory
         img = cv2.imread(img_path, 0)  # Read the image for Visual Odometry
+
+        # Create a CLAHE object (contrast limiting adaptive histogram equalization)
+        clahe = cv2.createCLAHE(clipLimit=5.0)
+        img = clahe.apply(img)
 
         if img_id != 0 and gps_switch is True:
             # Retrieve image distance in order to scale translation vectors
