@@ -26,69 +26,22 @@ https://github.com/uoip/monoVO-python
 """
 
 import Triangulation
+import py_MVO_OptFlow as OF
 from Common_Modules import *
 
-# GLOBAL VARIABLES
+# CONSTANT VARIABLES
 STAGE_FIRST_FRAME = 0  # The three STAGE variables
 STAGE_SECOND_FRAME = 1  # define which function will be
 STAGE_DEFAULT_FRAME = 2  # used in the update function.
 kMinNumFeature = 1000  # Minimum amount of features needed, if less feature detection is used
 fMATCHING_DIFF = 1  # Minimum difference in the KLT point correspondence
 
-# Parameters used for cv2.calcOpticalFlowPyrLK (KLT tracker)
-lk_params = dict(winSize=(21, 21),
-                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
 
 # Parameters used for cv2.goodFeaturesToTrack (Shi-Tomasi Features)
 feature_params = dict(maxCorners=500,
                       qualityLevel=0.3,
                       minDistance=7,
                       blockSize=7)
-
-
-def KLT_featureTracking(image_ref, image_cur, px_ref):
-    """Feature tracking using the Kanade-Lucas-Tomasi tracker.
-    A backtracking check is done to ensure good features. The backtracking features method
-    consist of tracking a set of features, f-1, onto a new frame, which will produce the corresponding features, f-2,
-    on the new frame. Once this is done we take the f-2 features, and look for their
-    corresponding features, f-1', on the last frame. When we obtain the f-1' features we look for the
-    absolute difference between f-1 and f-1', abs(f-1 and f-1'). If the absolute difference is less than a certain
-    threshold(in this case 1) then we consider them good features."""
-
-    # Feature Correspondence with Backtracking Check
-    kp2, st, err = cv2.calcOpticalFlowPyrLK(image_ref, image_cur, px_ref, None, **lk_params)
-    kp1, st, err = cv2.calcOpticalFlowPyrLK(image_cur, image_ref, kp2, None, **lk_params)
-
-    d = abs(px_ref - kp1).reshape(-1, 2).max(-1)  # Verify the absolute difference between feature points
-    good = d < fMATCHING_DIFF  # Verify which features produced good results by the difference being less
-                               # than the fMATCHING_DIFF threshold.
-    # Error Management
-    if len(d) == 0:
-        print 'Error: No matches where made.'
-    elif list(good).count(
-            True) <= 5:  # If less than 5 good points, it uses the features obtain without the backtracking check
-        print 'Warning: No match was good. Returns the list without good point correspondence.'
-        return kp1, kp2
-
-    # Create new lists with the good features
-    n_kp1, n_kp2 = [], []
-    for i, good_flag in enumerate(good):
-        if good_flag:
-            n_kp1.append(kp1[i])
-            n_kp2.append(kp2[i])
-
-    # Format the features into float32 numpy arrays
-    n_kp1, n_kp2 = np.array(n_kp1, dtype=np.float32), np.array(n_kp2, dtype=np.float32)
-
-    # Verify if the point correspondence points are in the same
-    # pixel coordinates. If true the car is stopped (theoretically)
-    d = abs(n_kp1 - n_kp2).reshape(-1, 2).max(-1)
-
-    # The mean of the differences is used to determine the amount
-    # of distance between the pixels
-    diff_mean = np.mean(d)
-
-    return n_kp1, n_kp2, diff_mean
 
 
 class VisualOdometry:
@@ -258,7 +211,7 @@ class VisualOdometry:
         # The images or roi used for the VO process (feature detection and tracking)
         prev_img, cur_img = self.last_frame, self.new_frame
         # Obtain feature correspondence points
-        self.px_ref, self.px_cur, _diff = KLT_featureTracking(prev_img, cur_img, self.px_ref)
+        self.px_ref, self.px_cur, _diff = OF.KLT_featureTracking(prev_img, cur_img, self.px_ref)
         # Estimate the essential matrix
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, self.K, method=cv2.RANSAC, prob=0.999, threshold=1.0)
         # Estimate Rotation and translation vectors
@@ -283,7 +236,7 @@ class VisualOdometry:
         # The images or roi used for the VO process (feature detection and tracking)
         prev_img, cur_img = self.last_frame, self.new_frame
         # Obtain feature correspondence points
-        self.px_ref, self.px_cur, px_diff = KLT_featureTracking(prev_img, cur_img, self.px_ref)
+        self.px_ref, self.px_cur, px_diff = OF.KLT_featureTracking(prev_img, cur_img, self.px_ref)
         # Verify if the current frame is going to be skipped
         self.skip_frame = self.frame_Skip(px_diff)
         if self.skip_frame:
@@ -298,6 +251,8 @@ class VisualOdometry:
         _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, self.K)
         # Triangulation, returns 3-D point cloud
         self.new_cloud = self.triangulation_3D(R, t)
+
+        # Scaling the trajectory
         # If ground truth is provided use it for scaling
         if self.groundTruth:
             # Ground Truth Scale
