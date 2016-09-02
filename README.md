@@ -3,6 +3,9 @@
 The project implements Mononocular Visual Odometry utilizing [OpenCV 3.1.0-dev](https://github.com/opencv/opencv) 
 with the [opencv_contrib](https://github.com/opencv/opencv_contrib) modules.
 
+Video:
+https://www.youtube.com/watch?v=E8JK19TmTL4&feature=youtu.be
+
 ![opticalfield](media/opticalfield.png)
 **Optical Flow Field represented by arrows**
 
