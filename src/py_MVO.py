@@ -177,10 +177,7 @@ class VisualOdometry:
 
         # We tried this parameter with 20, 15, 10, 5, 3, 2, 1 and 0
         # for one dataset and found that 3 produces the best results.
-        if pixel_diff < 3:
-            return True
-        else:
-            return False
+        return pixel_diff < 3
 
     def detectNewFeatures(self, cur_img, feature_pts):
         """Detects new features in the current frame.
