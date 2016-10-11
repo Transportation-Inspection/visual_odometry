@@ -25,7 +25,6 @@ https://github.com/uoip/monoVO-python
 
 """
 
-import Triangulation
 import py_MVO_OptFlow as OF
 from Common_Modules import *
 
@@ -133,19 +132,27 @@ class VisualOdometry:
 
         return np.sqrt((x - x_prev) * (x - x_prev) + (y - y_prev) * (y - y_prev) + (z - z_prev) * (z - z_prev))
 
-    def triangulation_3D(self, R, t):
-        """ Triangulates the feature correspondence points with the
-        camera intrinsic matrix, rotation matrix, and translation vector.
-        Also, it creates projection matrices for the triangulation process.
-        **Uses Triangulation.py """
 
+    def triangulatePoints(self, R, t):
+        """Triangulates the feature correspondence points with
+        the camera intrinsic matrix, rotation matrix, and translation vector.
+        It creates projection matrices for the triangulation process."""
+
+        # The canonical matrix (set as the origin)
         P0 = np.array([[1, 0, 0, 0],
-                      [0, 1, 0, 0],
-                      [0, 0, 1, 0]])
-
+                       [0, 1, 0, 0],
+                       [0, 0, 1, 0]])
+        P0 = self.K.dot(P0)
+        # Rotated and translated using P0 as the reference point
         P1 = np.hstack((R, t))
+        P1 = self.K.dot(P1)
+        # Reshaped the point correspondence arrays to cv2.triangulatePoints's format
+        point1 = self.px_ref.reshape(2, -1)
+        point2 = self.px_cur.reshape(2, -1)
 
-        return np.array(Triangulation.TriangulatePoints(self.px_ref, self.px_cur, self.K, P0, P1))
+        return cv2.triangulatePoints(P0, P1, point1, point2).reshape(-1, 4)[:, :3]
+
+
 
     def getRelativeScale(self):
         """ Returns the relative scale based on the 3-D point clouds
@@ -209,6 +216,10 @@ class VisualOdometry:
         prev_img, cur_img = self.last_frame, self.new_frame
         # Obtain feature correspondence points
         self.px_ref, self.px_cur, _diff = OF.KLT_featureTracking(prev_img, cur_img, self.px_ref)
+        # Estimate the fundamental matrix
+        F, mask = cv2.findFundamentalMat(self.px_cur,self.px_ref, cv2.FM_RANSAC)
+        # Minimize the geometric error in the image corresponding coordinates
+        self.px_cur, self.px_ref = OF.betterMatches(F, self.px_cur, self.px_ref)
         # Estimate the essential matrix
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, self.K, method=cv2.RANSAC, prob=0.999, threshold=1.0)
         # Estimate Rotation and translation vectors
@@ -216,7 +227,7 @@ class VisualOdometry:
         self.T_vectors.append(tuple(self.cur_R.dot(self.cur_t)))
         self.R_matrices.append(tuple(self.cur_R))
         # Triangulation, returns 3-D point cloud
-        self.new_cloud = self.triangulation_3D(self.cur_R, self.cur_t)
+        self.new_cloud = self.triangulatePoints(self.cur_R, self.cur_t)
         # For Optical Flow Field
         self.OFF_prev, self.OFF_cur = self.px_ref, self.px_cur
         # The new frame becomes the previous frame
@@ -247,7 +258,8 @@ class VisualOdometry:
         # Estimate Rotation and translation vectors
         _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, self.K)
         # Triangulation, returns 3-D point cloud
-        self.new_cloud = self.triangulation_3D(R, t)
+        self.new_cloud = self.triangulatePoints(R, t)
+
 
         # Scaling the trajectory
         # If ground truth is provided use it for scaling
