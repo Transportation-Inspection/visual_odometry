@@ -24,6 +24,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 """
 
 from Common_Modules import *
+from os import path
 
 class CameraParams:
     """ A class for the parsing of the Camera Parameter's text file.
