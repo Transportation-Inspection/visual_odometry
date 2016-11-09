@@ -77,3 +77,21 @@ def KLT_featureTracking(image_ref, image_cur, px_ref):
     diff_mean = np.mean(d)
 
     return n_kp1, n_kp2, diff_mean
+
+
+def betterMatches(F, points1, points2):
+    """ Minimize the geometric error between corresponding image coordinates.
+    For more information look into OpenCV's docs for the cv2.correctMatches function."""
+
+    # Reshaping for cv2.correctMatches
+    points1 = np.reshape(points1, (1, points1.shape[0], 2))
+    points2 = np.reshape(points2, (1, points2.shape[0], 2))
+
+    newPoints1, newPoints2 = cv2.correctMatches(F, points1, points2)
+
+    return newPoints1[0], newPoints2[0]
+
+
+
+
+

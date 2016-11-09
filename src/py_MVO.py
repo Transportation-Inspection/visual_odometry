@@ -186,7 +186,7 @@ class VisualOdometry:
         # for one dataset and found that 3 produces the best results.
         return pixel_diff < 3
 
-    def detectNewFeatures(self, cur_img, feature_pts):
+    def detectNewFeatures(self, cur_img):
         """Detects new features in the current frame.
         Uses the Feature Detector selected."""
         if self.detector == 'SHI-TOMASI':
@@ -216,10 +216,6 @@ class VisualOdometry:
         prev_img, cur_img = self.last_frame, self.new_frame
         # Obtain feature correspondence points
         self.px_ref, self.px_cur, _diff = OF.KLT_featureTracking(prev_img, cur_img, self.px_ref)
-        # Estimate the fundamental matrix
-        F, mask = cv2.findFundamentalMat(self.px_cur,self.px_ref, cv2.FM_RANSAC)
-        # Minimize the geometric error in the image corresponding coordinates
-        self.px_cur, self.px_ref = OF.betterMatches(F, self.px_cur, self.px_ref)
         # Estimate the essential matrix
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, self.K, method=cv2.RANSAC, prob=0.999, threshold=1.0)
         # Estimate Rotation and translation vectors
@@ -253,6 +249,7 @@ class VisualOdometry:
                 self.px_ref = self.px_cur
                 self.last_cloud = self.new_cloud
             return
+
         # Estimate the essential matrix
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, self.K, method=cv2.RANSAC, prob=0.999, threshold=1.0)
         # Estimate Rotation and translation vectors
