@@ -202,7 +202,7 @@ class VisualOdometry:
         """Process the first frame. Detects feature points on the first frame
         in order to provide them to the Kanade-Lucas-Tomasi Tracker"""
 
-        self.px_ref = self.detectNewFeatures(self.new_frame, self.px_ref)
+        self.px_ref = self.detectNewFeatures(self.new_frame)
         self.T_vectors.append(tuple([[0], [0], [0]]))
         self.R_matrices.append(tuple(np.zeros((3, 3))))
         self.frame_stage = STAGE_SECOND_FRAME
@@ -245,7 +245,7 @@ class VisualOdometry:
         self.skip_frame = self.frame_Skip(px_diff)
         if self.skip_frame:
             if self.px_ref.shape[0] < kMinNumFeature:  # Verify if features on last_frame are sparse
-                self.px_cur = self.detectNewFeatures(prev_img, self.px_cur)
+                self.px_cur = self.detectNewFeatures(prev_img)
                 self.px_ref = self.px_cur
                 self.last_cloud = self.new_cloud
             return
@@ -274,7 +274,7 @@ class VisualOdometry:
             self.R_matrices.append(tuple(self.cur_R))
 
         if self.px_ref.shape[0] < kMinNumFeature:                     # Verify if the amount of feature points
-            self.px_cur = self.detectNewFeatures(cur_img, self.px_cur)  # is above the kMinNumFeature threshold
+            self.px_cur = self.detectNewFeatures(cur_img)  # is above the kMinNumFeature threshold
 
         # For Optical Flow Field
         self.OFF_prev, self.OFF_cur = self.px_ref, self.px_cur
