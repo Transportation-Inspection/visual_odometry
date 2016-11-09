@@ -50,7 +50,7 @@ class CameraParams:
         with open(txt_file) as f:
             self.txt = f.readlines()
         idx = 59  # The index where the attributes begin
-        self.folder = self.txt[idx].strip()
+        self.folder = path.normpath(self.txt[idx].strip())
         self.format = self.txt[idx+1].strip()
         self.isProjMat = self.txt[idx+2].strip()
 
