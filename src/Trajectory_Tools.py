@@ -33,20 +33,6 @@ from itertools import *
 from Common_Modules import *
 
 
-def images_from_Folder(folder, format):
-    """ Gets the images from a folder and stores
-        the full image's path in a list. """
-    folder = path.normpath(folder)
-
-    if format == 'JPEG' or format == 'JPG' or format == 'jpg':
-        format = 'jpg'
-    elif format == 'PNG' or format == 'png':
-        format = 'png'
-
-    # Load all the JPEGs into a list
-    return glob.glob(folder + '/*.'+format)
-
-
 # Print iterations progress
 def printProgress (iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 100):
     """

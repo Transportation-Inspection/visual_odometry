@@ -46,26 +46,12 @@ def run():
     cmd_parser = argparse.ArgumentParser()
     cmd_parser.add_argument('txt_file', help= 'Text file that contains all the input parameters. Verify the CameraParams file.')
     args = cmd_parser.parse_args()
-    try:
-        # Create Camera Parameters object
-        CP = Cam_Parser.CameraParams(args.txt_file)
-    except IOError:
-        print "IOError: No such file or directory -", args.txt_file
-        return
-    except ValueError, e:
-        print e.message
-        return
-    except:
-        print "UnexpectedError: txt_file given is in wrong format."
-        return
 
-    # Returns the images' directory, images' format, and GPS_FLAG
-    folder, img_format, GPS_flag  = CP.folder, CP.format, CP.GPS_FLAG
-    images = TT.images_from_Folder(folder, img_format)  # List of all the images' filepaths
+    CP = Cam_Parser.CameraParams(args.txt_file)
 
-    if len(images) == 0:
-        print "Error: No images of the specified format were found. Verify the format in the CameraParams.txt"
-        return
+    # Returns the images' directory, images' format, list of images and GPS_FLAG
+    folder, img_format, images, GPS_flag = CP.folder, CP.format, CP.images, CP.GPS_FLAG
+
     gps_switch = False  # Determines if GPS was recovered
     if GPS_flag == 'GPS_T' or GPS_flag == 'GPS_T_M':  # Verify if flag was raised
         gps_dict = GPS_VO.gps_filename_dict(images)  # Retrieve the GPS info into a dictionary
