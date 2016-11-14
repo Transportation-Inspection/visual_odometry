@@ -61,11 +61,10 @@ class CameraParams:
             raise IOError('Error encountered opening the text file.')
 
         try:
-
-            if path.isdir(self.txt[idx].strip()):
-                self.folder = path.normpath(self.txt[idx].strip())
-            else:
+            self.folder = path.normpath(self.txt[idx].strip())
+            if not path.isdir(self.txt[idx].strip()):
                 raise IOError
+
             self.format = self.txt[idx+1].strip()
             self.images = glob.glob(self.folder + '/*.' + self.format)
             if len(self.images) == 0:
