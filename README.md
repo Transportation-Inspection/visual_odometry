@@ -63,7 +63,7 @@ Entire filepath:
 ```
 $ python MAIN.py ../CameraParams.txt
 ```
-The program uses the text file to obtain all the input parameters, the [CameraParams](https://github.com/Transportation-Inspection/visual_odometry/blob/master/CameraParams.txt) text file in the repository provides the correct format and should be used as the template, just replace the sample information at the bottom of the file with your information. The image dataset used should be sequential, meaning that the movement between images needs to be progressive; e.g. images taken from a moving vehicle of the road ahead.
+The program uses the text file to obtain all the input parameters, the [CameraParams](https://github.com/Transportation-Inspection/visual_odometry/blob/master/src/CameraParams.txt) text file in the repository provides the correct format and should be used as the template, just replace the sample information at the bottom of the file with your information. The image dataset used should be sequential, meaning that the movement between images needs to be progressive; e.g. images taken from a moving vehicle of the road ahead.
 
 Input parameters for the CameraParams Text File:
 ```
