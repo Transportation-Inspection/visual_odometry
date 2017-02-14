@@ -67,8 +67,8 @@ The program uses the text file to obtain all the input parameters, the [CameraPa
 
 Input parameters for the CameraParams Text File:
 ```
-<Image Sequence's Directory>
-<Images' File Format (e.g. PNG, JPG)>
+<Image Sequence's Directory> (/ for linux, \ for windows)
+<Images' File Format (e.g. PNG, JPG)> (case-sensitive)
 <Boolean: Type True if Projection Matrix is used else type None>
 <Projection Matrix: is a 3x4 matrix; input as 1-D array, if CameraIntrinsicMat is used: type None>
 <CameraIntrinsicMatrix: is a 3x3 matrix; input as 1-D array, if ProjectionMat true: type None>
