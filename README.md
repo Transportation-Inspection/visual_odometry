@@ -109,7 +109,7 @@ MIT
 
 ## Authors
 
-- Jahdiel Alvarez (jahdiel.alvarez@gmail.com)
+- Jahdiel Alvarez (jahdiel.alvarez@upr.edu)
 - Christoph Mertz
 
 
